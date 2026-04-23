@@ -12,23 +12,23 @@ import (
 var DB *sql.DB
 
 func ConnectDB() {
-	// Membaca pengaturan dari Docker (Environment Variables)
-	dbHost := os.Getenv("DB_HOST")
-	if dbHost == "" {
-		dbHost = "localhost"
-	}
-	
-	dbUser := os.Getenv("DB_USER")
-	if dbUser == "" {
-		dbUser = "personal"
-	}
-	
-	dbPass := os.Getenv("DB_PASS")
-	if dbPass == "" {
-		dbPass = "crudence"
-	}
+	dbUrl := os.Getenv("DATABASE_URL")
+	var connStr string
 
-	connStr := fmt.Sprintf("host=%s port=5432 user=%s password=%s dbname=go_sso sslmode=disable", dbHost, dbUser, dbPass)
+	if dbUrl != "" {
+		// Jika dideploy di Cloud (Render), gunakan URL langsung dari Supabase
+		connStr = dbUrl
+	} else {
+		// Fallback untuk local Docker Compose
+		dbHost := os.Getenv("DB_HOST")
+		if dbHost == "" { dbHost = "localhost" }
+		dbUser := os.Getenv("DB_USER")
+		if dbUser == "" { dbUser = "personal" }
+		dbPass := os.Getenv("DB_PASS")
+		if dbPass == "" { dbPass = "crudence" }
+		
+		connStr = fmt.Sprintf("host=%s port=5432 user=%s password=%s dbname=go_sso sslmode=disable", dbHost, dbUser, dbPass)
+	}
 	
 	var err error
 	DB, err = sql.Open("postgres", connStr)

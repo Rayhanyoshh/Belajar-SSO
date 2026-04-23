@@ -1,0 +1,17 @@
+# Go Binaries
+sso-api
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+
+# Editor & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Environment Config
+.env
