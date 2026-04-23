@@ -3,16 +3,18 @@ package middlewares
 import (
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 var JwtKey = []byte("KUNCI_RAHASIA_SUPER_KUAT_123") // Harus sama dengan yang ada di handler login
 
-func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			http.Error(w, "Akses ditolak: Token tidak ditemukan", http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Akses ditolak: Token tidak ditemukan"})
 			return
 		}
 
@@ -22,10 +24,16 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			http.Error(w, "Akses ditolak: Token tidak valid", http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Akses ditolak: Token tidak valid"})
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		// Jika token valid, simpan claims ke dalam context agar bisa dipakai handler
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			c.Set("user_id", claims["user_id"])
+			c.Set("username", claims["username"])
+		}
+
+		c.Next()
 	}
 }
