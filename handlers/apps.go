@@ -3,14 +3,15 @@ package handlers
 import (
 	"belajar-sso/database"
 	"belajar-sso/models"
-	"encoding/json"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func GetApplications(w http.ResponseWriter, r *http.Request) {
+func GetApplications(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT id, app_name, description, icon_name, action_key FROM applications")
 	if err != nil {
-		http.Error(w, "Gagal mengambil data aplikasi", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengambil data aplikasi"})
 		return
 	}
 	defer rows.Close()
@@ -27,6 +28,5 @@ func GetApplications(w http.ResponseWriter, r *http.Request) {
 		apps = []models.Application{}
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(apps)
+	c.JSON(http.StatusOK, apps)
 }
