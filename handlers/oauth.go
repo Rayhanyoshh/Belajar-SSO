@@ -18,7 +18,7 @@ import (
 
 var (
 	GoogleOauthConfig = &oauth2.Config{
-		RedirectURL:  getEnvOrDefault("GOOGLE_REDIRECT_URL", "http://localhost:8081/auth/google/callback"),
+		RedirectURL:  "https://go-sso.onrender.com/auth/google/callback", // Nanti akan kita sesuaikan untuk Production
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"},
@@ -26,14 +26,6 @@ var (
 	}
 	oauthStateString = "pseudo-random-state"
 )
-
-// Helper function untuk mengambil nilai dari environment variable, jika kosong gunakan default
-func getEnvOrDefault(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-	return fallback
-}
 
 // GoogleLogin mengarahkan user ke halaman login Google
 func GoogleLogin(c *gin.Context) {
@@ -119,8 +111,7 @@ func GoogleCallback(c *gin.Context) {
 	)
 
 	// Redirect kembali ke halaman Frontend dengan membawa token
-	// Gunakan FRONTEND_URL dari environment agar dinamis antara Local dan Production
-	frontendURL := getEnvOrDefault("FRONTEND_URL", "http://localhost")
-	redirectURL := frontendURL + "/?token=" + tokenString + "&refresh_token=" + refreshToken
+	// Gunakan root (/) agar Nginx SPA tidak melempar error 404
+	redirectURL := "http://localhost/?token=" + tokenString + "&refresh_token=" + refreshToken
 	c.Redirect(http.StatusTemporaryRedirect, redirectURL)
 }
