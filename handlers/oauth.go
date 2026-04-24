@@ -16,8 +16,17 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
+// Helper function untuk mengambil nilai dari environment variable, jika kosong gunakan default
+func getEnvOrDefault(key, fallback string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return fallback
+}
+
 var (
 	GoogleOauthConfig = &oauth2.Config{
+		// Akan membaca GOOGLE_REDIRECT_URL, jika kosong maka kembali ke localhost
 		RedirectURL:  getEnvOrDefault("GOOGLE_REDIRECT_URL", "http://localhost:8081/auth/google/callback"),
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
@@ -26,14 +35,6 @@ var (
 	}
 	oauthStateString = "pseudo-random-state"
 )
-
-// Helper function untuk mengambil nilai dari environment variable, jika kosong gunakan default
-func getEnvOrDefault(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-	return fallback
-}
 
 // GoogleLogin mengarahkan user ke halaman login Google
 func GoogleLogin(c *gin.Context) {
