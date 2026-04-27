@@ -26,8 +26,11 @@ func getEnvOrDefault(key, fallback string) string {
 
 var (
 	GoogleOauthConfig = &oauth2.Config{
-		// Akan membaca GOOGLE_REDIRECT_URL, jika kosong maka kembali ke localhost
+<<<<<<<<< Temporary merge branch 1
+		RedirectURL:  "https://go-sso.onrender.com/auth/google/callback", // Nanti akan kita sesuaikan untuk Production
+=========
 		RedirectURL:  getEnvOrDefault("GOOGLE_REDIRECT_URL", "http://localhost:8081/auth/google/callback"),
+>>>>>>>>> Temporary merge branch 2
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"},
@@ -120,8 +123,13 @@ func GoogleCallback(c *gin.Context) {
 	)
 
 	// Redirect kembali ke halaman Frontend dengan membawa token
+<<<<<<<<< Temporary merge branch 1
+	// Gunakan root (/) agar Nginx SPA tidak melempar error 404
+	redirectURL := "http://localhost/?token=" + tokenString + "&refresh_token=" + refreshToken
+=========
 	// Gunakan FRONTEND_URL dari environment agar dinamis antara Local dan Production
 	frontendURL := getEnvOrDefault("FRONTEND_URL", "http://localhost")
 	redirectURL := frontendURL + "/?token=" + tokenString + "&refresh_token=" + refreshToken
+>>>>>>>>> Temporary merge branch 2
 	c.Redirect(http.StatusTemporaryRedirect, redirectURL)
 }
