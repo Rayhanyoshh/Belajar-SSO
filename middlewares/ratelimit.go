@@ -3,7 +3,6 @@ package middlewares
 import (
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
