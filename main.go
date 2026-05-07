@@ -68,8 +68,14 @@ func main() {
 
 	slog.Info("Server Microservice SSO mulai berjalan", "port", "8081")
 
+	// Mendukung port dinamis untuk deployment (Render, Heroku, dll)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8081"
+	}
+
 	srv := &http.Server{
-		Addr:    ":8081",
+		Addr:    ":" + port,
 		Handler: r,
 	}
 
