@@ -5,7 +5,9 @@ import (
 	"belajar-sso/models"
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,9 +15,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Rahasia ini adalah "Tanda Tangan Digital" server Anda.
-// Nanti kunci ini akan disalin ke aplikasi Tracker agar Tracker bisa memvalidasi token dari SSO.
-var JWTSecretKey = []byte("KUNCI_RAHASIA_SUPER_KUAT_123")
+// JWTSecretKey dibaca dari environment variable JWT_SECRET.
+// Jika tidak di-set, aplikasi akan langsung berhenti saat startup (fail-fast).
+var JWTSecretKey = mustGetJWTSecret()
+
+func mustGetJWTSecret() []byte {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		panic(fmt.Sprintf("[FATAL] Environment variable JWT_SECRET tidak di-set! Server tidak dapat berjalan tanpa secret key."))
+	}
+	return []byte(secret)
+}
 
 func generateRefreshToken() string {
 	bytes := make([]byte, 32)

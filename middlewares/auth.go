@@ -1,14 +1,25 @@
 package middlewares
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var JwtKey = []byte("KUNCI_RAHASIA_SUPER_KUAT_123") // Harus sama dengan yang ada di handler login
+// JwtKey dibaca dari environment variable JWT_SECRET (sama dengan yang di handlers).
+var JwtKey = mustGetJWTSecret()
+
+func mustGetJWTSecret() []byte {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		panic(fmt.Sprintf("[FATAL] Environment variable JWT_SECRET tidak di-set!"))
+	}
+	return []byte(secret)
+}
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
